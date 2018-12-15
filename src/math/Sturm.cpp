@@ -143,13 +143,13 @@ opengv::math::Bracket::numberRoots() const
 opengv::math::Sturm::Sturm( const Eigen::MatrixXd & p ) :
     m_C(Eigen::MatrixXd(p.cols(),p.cols()))
 {
-  _dimension = (size_t) m_C.cols();
+  m_dimension = (size_t) m_C.cols();
   m_C = Eigen::MatrixXd(m_dimension,m_dimension);
   m_C.setZero();
   m_C.row(0) = p;
 
   for( size_t i = 1; i < m_dimension; i++ )
-    _C(1,i) = _C(0,i-1) * (m_dimension-i);
+    m_C(1,i) = m_C(0,i-1) * (m_dimension-i);
 
   for( size_t i = 2; i < m_dimension; i++ )
   {
@@ -172,7 +172,7 @@ opengv::math::Sturm::Sturm( const std::vector<double> & p ) :
     m_C(0,i) = p[i];
 
   for( size_t i = 1; i < m_dimension; i++ )
-    m_C(1,i) = _C(0,i-1) * (m_dimension-i);
+    m_C(1,i) = m_C(0,i-1) * (m_dimension-i);
 
   for( size_t i = 2; i < m_dimension; i++ )
   {
@@ -197,7 +197,7 @@ opengv::math::Sturm::findRoots2( std::vector<double> & roots, double eps_x, doub
   roots.reserve(stack.back()->numberRoots());
   
   //some variables for pollishing
-  Eigen::MatrixXd monomials(_dimension,1);
+  Eigen::MatrixXd monomials(m_dimension,1);
   monomials(m_dimension-1,0) = 1.0;
   
   while( !stack.empty() )
@@ -215,15 +215,15 @@ opengv::math::Sturm::findRoots2( std::vector<double> & roots, double eps_x, doub
         bool converged = false;
         
         double root = 0.5 * (bracket->lowerBound() + bracket->upperBound());
-        for(size_t i = 2; i <= _dimension; i++)
+        for(size_t i = 2; i <= m_dimension; i++)
           monomials(m_dimension-i,0) = monomials(m_dimension-i+1,0)*root;
-        Eigen::MatrixXd matValue = _C.row(0) * monomials;
+        Eigen::MatrixXd matValue = m_C.row(0) * monomials;
         
         double value = matValue(0,0);
         
         while( !converged )
         {
-          Eigen::MatrixXd matDerivative = _C.row(1) * monomials;
+          Eigen::MatrixXd matDerivative = m_C.row(1) * monomials;
           double derivative = matDerivative(0,0);
           
           double newRoot = root - (value/derivative);
@@ -346,12 +346,12 @@ opengv::math::Sturm::bracketRoots( std::vector<double> & roots, double eps )
 size_t
 opengv::math::Sturm::evaluateChain( double bound )
 {
-  Eigen::MatrixXd monomials(_dimension,1);
+  Eigen::MatrixXd monomials(m_dimension,1);
   monomials(m_dimension-1,0) = 1.0;
   
   //evaluate all monomials at the bound
-  for(size_t i = 2; i <= _dimension; i++)
-    monomials(m_dimension-i,0) = monomials(_dimension-i+1,0)*bound;
+  for(size_t i = 2; i <= m_dimension; i++)
+    monomials(m_dimension-i,0) = monomials(m_dimension-i+1,0)*bound;
   
   Eigen::MatrixXd signs(m_dimension,1);
   for( size_t i = 0; i < m_dimension; i++ )
@@ -363,7 +363,7 @@ opengv::math::Sturm::evaluateChain( double bound )
   
   int signChanges = 0;
   
-  for( size_t i = 1; i < _dimension; i++ )
+  for( size_t i = 1; i < m_dimension; i++ )
   {
     if( positive )
     {
@@ -465,7 +465,7 @@ opengv::math::Sturm::computeLagrangianBound()
   coefficients.reserve(m_dimension-1);
 
   for(size_t i=0; i < m_dimension-1; i++)
-    coefficients.push_back(pow(fabs(_C(0,i+1)/_C(0,0)),(1.0/(i+1))));
+    coefficients.push_back(pow(fabs(m_C(0,i+1)/m_C(0,0)),(1.0/(i+1))));
 
   size_t j = 0;
   double max1 = -1.0;
