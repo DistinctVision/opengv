@@ -141,46 +141,46 @@ opengv::math::Bracket::numberRoots() const
 
 
 opengv::math::Sturm::Sturm( const Eigen::MatrixXd & p ) :
-    _C(Eigen::MatrixXd(p.cols(),p.cols()))
+    m_C(Eigen::MatrixXd(p.cols(),p.cols()))
 {
-  _dimension = (size_t) _C.cols();
-  _C = Eigen::MatrixXd(_dimension,_dimension);
-  _C.setZero();
-  _C.row(0) = p;
+  _dimension = (size_t) m_C.cols();
+  m_C = Eigen::MatrixXd(m_dimension,m_dimension);
+  m_C.setZero();
+  m_C.row(0) = p;
 
-  for( size_t i = 1; i < _dimension; i++ )
-    _C(1,i) = _C(0,i-1) * (_dimension-i);
+  for( size_t i = 1; i < m_dimension; i++ )
+    _C(1,i) = _C(0,i-1) * (m_dimension-i);
 
-  for( size_t i = 2; i < _dimension; i++ )
+  for( size_t i = 2; i < m_dimension; i++ )
   {
-    Eigen::MatrixXd p1 = _C.block(i-2,i-2,1,_dimension-(i-2));
-    Eigen::MatrixXd p2 = _C.block(i-1,i-1,1,_dimension-(i-1));
+    Eigen::MatrixXd p1 = m_C.block(i-2,i-2,1,m_dimension-(i-2));
+    Eigen::MatrixXd p2 = m_C.block(i-1,i-1,1,m_dimension-(i-1));
     Eigen::MatrixXd r;
     computeNegatedRemainder(p1,p2,r);
-    _C.block(i,i,1,_dimension-i) = r.block(0,2,1,_dimension-i);
+    m_C.block(i,i,1,m_dimension-i) = r.block(0,2,1,m_dimension-i);
   }
 }
 
 opengv::math::Sturm::Sturm( const std::vector<double> & p ) :
-    _C(Eigen::MatrixXd(p.size(),p.size()))
+    m_C(Eigen::MatrixXd(p.size(),p.size()))
 {
-  _dimension = (size_t) _C.cols();
-  _C = Eigen::MatrixXd(_dimension,_dimension);
-  _C.setZero();
+  m_dimension = (size_t) m_C.cols();
+  m_C = Eigen::MatrixXd(m_dimension,m_dimension);
+  m_C.setZero();
 
-  for( size_t i = 0; i < _dimension; i++ )
-    _C(0,i) = p[i];
+  for( size_t i = 0; i < m_dimension; i++ )
+    m_C(0,i) = p[i];
 
-  for( size_t i = 1; i < _dimension; i++ )
-    _C(1,i) = _C(0,i-1) * (_dimension-i);
+  for( size_t i = 1; i < m_dimension; i++ )
+    m_C(1,i) = _C(0,i-1) * (m_dimension-i);
 
-  for( size_t i = 2; i < _dimension; i++ )
+  for( size_t i = 2; i < m_dimension; i++ )
   {
-    Eigen::MatrixXd p1 = _C.block(i-2,i-2,1,_dimension-(i-2));
-    Eigen::MatrixXd p2 = _C.block(i-1,i-1,1,_dimension-(i-1));
+    Eigen::MatrixXd p1 = m_C.block(i-2,i-2,1,m_dimension-(i-2));
+    Eigen::MatrixXd p2 = m_C.block(i-1,i-1,1,m_dimension-(i-1));
     Eigen::MatrixXd r;
     computeNegatedRemainder(p1,p2,r);
-    _C.block(i,i,1,_dimension-i) = r.block(0,2,1,_dimension-i);
+    m_C.block(i,i,1,m_dimension-i) = r.block(0,2,1,m_dimension-i);
   }
 }
 
@@ -198,7 +198,7 @@ opengv::math::Sturm::findRoots2( std::vector<double> & roots, double eps_x, doub
   
   //some variables for pollishing
   Eigen::MatrixXd monomials(_dimension,1);
-  monomials(_dimension-1,0) = 1.0;
+  monomials(m_dimension-1,0) = 1.0;
   
   while( !stack.empty() )
   {  
@@ -216,7 +216,7 @@ opengv::math::Sturm::findRoots2( std::vector<double> & roots, double eps_x, doub
         
         double root = 0.5 * (bracket->lowerBound() + bracket->upperBound());
         for(size_t i = 2; i <= _dimension; i++)
-          monomials(_dimension-i,0) = monomials(_dimension-i+1,0)*root;
+          monomials(m_dimension-i,0) = monomials(m_dimension-i+1,0)*root;
         Eigen::MatrixXd matValue = _C.row(0) * monomials;
         
         double value = matValue(0,0);
@@ -231,9 +231,9 @@ opengv::math::Sturm::findRoots2( std::vector<double> & roots, double eps_x, doub
           if( newRoot < bracket->lowerBound() || newRoot > bracket->upperBound() )
             break;
           
-          for(size_t i = 2; i <= _dimension; i++)
-            monomials(_dimension-i,0) = monomials(_dimension-i+1,0)*newRoot;
-          matValue = _C.row(0) * monomials;
+          for(size_t i = 2; i <= m_dimension; i++)
+            monomials(m_dimension-i,0) = monomials(m_dimension-i+1,0)*newRoot;
+          matValue = m_C.row(0) * monomials;
           
           double newValue = matValue(0,0);
           
@@ -283,8 +283,8 @@ opengv::math::Sturm::findRoots()
   bracketRoots(roots);
 
   //pollish
-  Eigen::MatrixXd monomials(_dimension,1);
-  monomials(_dimension-1,0) = 1.0;
+  Eigen::MatrixXd monomials(m_dimension,1);
+  monomials(m_dimension-1,0) = 1.0;
 
   for(size_t r = 0; r < roots.size(); r++ )
   {
@@ -292,11 +292,11 @@ opengv::math::Sturm::findRoots()
     //evaluate all monomials at the left bound
     for(size_t k = 0; k < 5; k++ )
     {
-      for(size_t i = 2; i <= _dimension; i++)
-        monomials(_dimension-i,0) = monomials(_dimension-i+1,0)*roots[r];
+      for(size_t i = 2; i <= m_dimension; i++)
+        monomials(m_dimension-i,0) = monomials(m_dimension-i+1,0)*roots[r];
 
-      Eigen::MatrixXd value = _C.row(0) * monomials;
-      Eigen::MatrixXd derivative = _C.row(1) * monomials;
+      Eigen::MatrixXd value = m_C.row(0) * monomials;
+      Eigen::MatrixXd derivative = m_C.row(1) * monomials;
 
       //correction
       roots[r] = roots[r] - (value(0,0)/derivative(0,0));
@@ -347,15 +347,15 @@ size_t
 opengv::math::Sturm::evaluateChain( double bound )
 {
   Eigen::MatrixXd monomials(_dimension,1);
-  monomials(_dimension-1,0) = 1.0;
+  monomials(m_dimension-1,0) = 1.0;
   
   //evaluate all monomials at the bound
   for(size_t i = 2; i <= _dimension; i++)
-    monomials(_dimension-i,0) = monomials(_dimension-i+1,0)*bound;
+    monomials(m_dimension-i,0) = monomials(_dimension-i+1,0)*bound;
   
-  Eigen::MatrixXd signs(_dimension,1);
-  for( size_t i = 0; i < _dimension; i++ )
-    signs.block(i,0,1,1) = _C.block(i,i,1,_dimension-i) * monomials.block(i,0,_dimension-i,1);
+  Eigen::MatrixXd signs(m_dimension,1);
+  for( size_t i = 0; i < m_dimension; i++ )
+    signs.block(i,0,1,1) = m_C.block(i,i,1,m_dimension-i) * monomials.block(i,0,m_dimension-i,1);
   
   bool positive = false;
   if( signs(0,0) > 0.0 )
@@ -390,20 +390,20 @@ size_t
 opengv::math::Sturm::evaluateChain2( double bound )
 {  
   std::vector<double> monomials;
-  monomials.resize(_dimension);
-  monomials[_dimension-1] = 1.0;
+  monomials.resize(m_dimension);
+  monomials[m_dimension-1] = 1.0;
   
   //evaluate all monomials at the bound
-  for(size_t i = 2; i <= _dimension; i++)
-    monomials[_dimension-i] = monomials[_dimension-i+1]*bound;
+  for(size_t i = 2; i <= m_dimension; i++)
+    monomials[m_dimension-i] = monomials[m_dimension-i+1]*bound;
   
   std::vector<double> signs;
-  signs.reserve(_dimension);
-  for( size_t i = 0; i < _dimension; i++ )
+  signs.reserve(m_dimension);
+  for( size_t i = 0; i < m_dimension; i++ )
   {
     signs.push_back(0.0);
-    for( size_t j = i; j < _dimension; j++ )
-      signs.back() += _C(i,j) * monomials[j];
+    for( size_t j = i; j < m_dimension; j++ )
+      signs.back() += m_C(i,j) * monomials[j];
   }
   
   bool positive = false;
@@ -412,7 +412,7 @@ opengv::math::Sturm::evaluateChain2( double bound )
   
   int signChanges = 0;
   
-  for( size_t i = 1; i < _dimension; i++ )
+  for( size_t i = 1; i < m_dimension; i++ )
   {
     if( positive )
     {
@@ -462,9 +462,9 @@ double
 opengv::math::Sturm::computeLagrangianBound()
 {
   std::vector<double> coefficients;
-  coefficients.reserve(_dimension-1);
+  coefficients.reserve(m_dimension-1);
 
-  for(size_t i=0; i < _dimension-1; i++)
+  for(size_t i=0; i < m_dimension-1; i++)
     coefficients.push_back(pow(fabs(_C(0,i+1)/_C(0,0)),(1.0/(i+1))));
 
   size_t j = 0;

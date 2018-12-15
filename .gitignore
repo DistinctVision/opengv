@@ -3,4 +3,4 @@ build
 *.mexa64
 *.pyc
 .vscode
-.user
+*.user

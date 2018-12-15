@@ -15,13 +15,13 @@ android {
 CONFIG(debug, debug|release) {
     TARGET = opengvd
 
-    DESTDIR += $$PWD/../build/
-    OBJECTS_DIR = $$PWD/../build/debug/obj
+    DESTDIR += $$PWD/build/
+    OBJECTS_DIR = $$PWD/build/debug/obj
 } else {
     TARGET = opengv
 
-    DESTDIR += $$PWD/../build/
-    OBJECTS_DIR = $$PWD/../build/release/obj
+    DESTDIR += $$PWD/build/
+    OBJECTS_DIR = $$PWD/build/release/obj
 }
 
 windows  {
@@ -38,6 +38,8 @@ linux {
 } else {
     error("Eigen not included")
 }
+
+INCLUDEPATH += include
 
 HEADERS += \
   include/opengv/types.hpp \
