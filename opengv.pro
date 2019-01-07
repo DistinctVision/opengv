@@ -4,7 +4,7 @@ CONFIG += c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
-CONFIG += shared
+CONFIG += static
 
 CONFIG += no_batch object_parallel_to_source
 
@@ -15,13 +15,11 @@ android {
 CONFIG(debug, debug|release) {
     TARGET = opengvd
 
-    DESTDIR += $$PWD/build/
-    OBJECTS_DIR = $$PWD/build/debug/obj
+    DESTDIR += $$PWD/lib/
 } else {
     TARGET = opengv
 
-    DESTDIR += $$PWD/build/
-    OBJECTS_DIR = $$PWD/build/release/obj
+    DESTDIR += $$PWD/lib/
 }
 
 windows  {
